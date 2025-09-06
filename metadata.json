@@ -1,0 +1,5 @@
+{
+  "name": "Itinerary Architect",
+  "description": "A smart travel planner that generates custom itineraries based on user preferences using the Gemini API with Google Search grounding for real-time information.",
+  "requestFramePermissions": []
+}
