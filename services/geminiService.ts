@@ -23,6 +23,7 @@ export async function generateItinerary(preferences: UserPreferences): Promise<{
     The suggestions for dining, accommodation, and activities must align with the user's **Budget**. For 'Budget-friendly', suggest affordable eateries, free attractions, and economical lodging. For 'Luxury', recommend fine dining, exclusive tours, and high-end hotels. For 'Moderate', provide a balanced mix.
 
     For each activity, provide a time, a title, a short and engaging description, a location or address if applicable, and categorize it into one of the following types: "Food", "Sightseeing", "Accommodation", "Travel", "Activity".
+    **If a physical location or address exists, you MUST also provide its geographic coordinates as \`latitude\` and \`longitude\` numeric properties.**
     
     **Crucially, for any 'Accommodation' activity, the 'title' must be the name of a specific, real hotel that fits the budget, and the 'location' must be its full physical address to ensure map links work correctly.**
 
@@ -39,7 +40,9 @@ export async function generateItinerary(preferences: UserPreferences): Promise<{
               "title": "string",
               "type": "'Food' | 'Sightseeing' | 'Accommodation' | 'Travel' | 'Activity'",
               "description": "string",
-              "location": "string"
+              "location": "string (optional)",
+              "latitude": "number (optional)",
+              "longitude": "number (optional)"
             }
           ]
         }

@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { Itinerary, Activity, GroundingChunk } from '../types';
 import { FoodIcon, SightseeingIcon, AccommodationIcon, TravelIcon, ActivityIcon, LinkIcon } from './Icons';
 import ExportActions from './ExportActions';
+import MapView from './MapView';
 
 interface ItineraryDisplayProps {
     itinerary: Itinerary;
@@ -76,6 +77,15 @@ const ActivityCard: React.FC<{ activity: Activity, isLast: boolean }> = ({ activ
 
 
 const ItineraryDisplay: React.FC<ItineraryDisplayProps> = ({ itinerary, citations, onSave, isSaved }) => {
+  const [isMapVisible, setIsMapVisible] = useState(false);
+
+  const allActivitiesWithCoords = useMemo(() => 
+    itinerary.days
+      .flatMap(day => day.activities)
+      .filter(activity => typeof activity.latitude === 'number' && typeof activity.longitude === 'number'),
+    [itinerary.days]
+  );
+  
   return (
     <div className="max-w-4xl mx-auto animate-fade-in">
         <div>
@@ -87,7 +97,16 @@ const ItineraryDisplay: React.FC<ItineraryDisplayProps> = ({ itinerary, citation
             itinerary={itinerary} 
             onSave={onSave}
             isSaved={isSaved}
+            isMapViewable={allActivitiesWithCoords.length > 0}
+            isMapVisible={isMapVisible}
+            onToggleMap={() => setIsMapVisible(!isMapVisible)}
         />
+        
+        {isMapVisible && allActivitiesWithCoords.length > 0 && (
+            <div className="mb-12 animate-fade-in">
+                <MapView activities={allActivitiesWithCoords} />
+            </div>
+        )}
 
         {itinerary.days.map(day => (
             <div key={day.day} className="mb-12">

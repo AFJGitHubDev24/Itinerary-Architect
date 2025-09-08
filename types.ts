@@ -14,6 +14,8 @@ export interface Activity {
   type: 'Food' | 'Sightseeing' | 'Accommodation' | 'Travel' | 'Activity';
   description: string;
   location?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface DayPlan {

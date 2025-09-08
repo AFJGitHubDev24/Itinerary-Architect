@@ -1,15 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Itinerary } from '../types';
 import { exportAsPdf, exportAsPptx, exportAsDocx } from '../lib/exportUtils';
-import { ExportIcon, PdfIcon, PptIcon, DocIcon, BookmarkIcon } from './Icons';
+import { ExportIcon, PdfIcon, PptIcon, DocIcon, BookmarkIcon, MapIcon } from './Icons';
 
 interface ExportActionsProps {
   itinerary: Itinerary;
   onSave: () => void;
   isSaved: boolean;
+  isMapViewable: boolean;
+  isMapVisible: boolean;
+  onToggleMap: () => void;
 }
 
-const ExportActions: React.FC<ExportActionsProps> = ({ itinerary, onSave, isSaved }) => {
+const ExportActions: React.FC<ExportActionsProps> = ({ itinerary, onSave, isSaved, isMapViewable, isMapVisible, onToggleMap }) => {
   const [isExporting, setIsExporting] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -69,6 +72,17 @@ const ExportActions: React.FC<ExportActionsProps> = ({ itinerary, onSave, isSave
         <div className="w-5 h-5"><BookmarkIcon filled={isSaved} /></div>
         {isSaved ? 'Saved' : 'Save Trip'}
       </ActionButton>
+      
+      {isMapViewable && (
+          <ActionButton
+            onClick={onToggleMap}
+            ariaLabel={isMapVisible ? "Hide map" : "Show map"}
+            className={isMapVisible ? 'bg-teal-50 !text-[#13A89E]' : ''}
+          >
+            <div className="w-5 h-5"><MapIcon /></div>
+            {isMapVisible ? 'Hide Map' : 'View Map'}
+          </ActionButton>
+      )}
 
       <div className="relative" ref={dropdownRef}>
         <ActionButton
