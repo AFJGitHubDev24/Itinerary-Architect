@@ -1,9 +1,11 @@
 export interface UserPreferences {
+  id?: string;
   destination: string;
   dates: string;
   interests: string[];
   budget: string;
   travelStyle: string;
+  pinned?: boolean;
 }
 
 export interface Activity {

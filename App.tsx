@@ -6,7 +6,7 @@ import LoadingAnimation from './components/LoadingAnimation';
 import Logo from './components/Logo';
 import { Itinerary, UserPreferences, GroundingChunk, AppError } from './types';
 import { generateItinerary } from './services/geminiService';
-import { getSavedItineraries, saveItinerary, deleteItinerary } from './lib/storageService';
+import { getSavedItineraries, saveItinerary, deleteItinerary, getSearchHistory, saveSearchPreferences, togglePinSearchPreference, clearSearchHistory } from './lib/storageService';
 import { AlertTriangleIcon } from './components/Icons';
 
 type View = 'form' | 'itinerary' | 'saved';
@@ -21,12 +21,14 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [currentItinerary, setCurrentItinerary] = useState<Itinerary | null>(null);
   const [savedItineraries, setSavedItineraries] = useState<Itinerary[]>([]);
+  const [searchHistory, setSearchHistory] = useState<UserPreferences[]>([]);
   const [citations, setCitations] = useState<GroundingChunk[]>([]);
   const [error, setError] = useState<AppErrorState | null>(null);
 
   useEffect(() => {
-    // Load saved itineraries from storage on initial app load
+    // Load saved itineraries and search history from storage on initial app load
     setSavedItineraries(getSavedItineraries());
+    setSearchHistory(getSearchHistory());
   }, []);
 
   const handleGenerateItinerary = useCallback(async (preferences: UserPreferences) => {
@@ -34,6 +36,10 @@ const App: React.FC = () => {
     setError(null);
     setCurrentItinerary(null);
     setCitations([]);
+
+    // Save search preferences and update state
+    const updatedHistory = saveSearchPreferences(preferences);
+    setSearchHistory(updatedHistory);
 
     try {
       const result = await generateItinerary(preferences);
@@ -98,6 +104,17 @@ const App: React.FC = () => {
     setView('itinerary');
   };
 
+  const handleTogglePin = useCallback((preferenceId: string) => {
+    if (!preferenceId) return;
+    const updatedHistory = togglePinSearchPreference(preferenceId);
+    setSearchHistory(updatedHistory);
+  }, []);
+
+  const handleClearHistory = useCallback(() => {
+    const updatedHistory = clearSearchHistory();
+    setSearchHistory(updatedHistory);
+  }, []);
+
   const renderContent = () => {
     if (isLoading) return <LoadingAnimation />;
     if (error && !isLoading) {
@@ -120,6 +137,13 @@ const App: React.FC = () => {
       );
     }
 
+    const formProps = {
+      onGenerate: handleGenerateItinerary,
+      searchHistory: searchHistory,
+      onTogglePin: handleTogglePin,
+      onClearHistory: handleClearHistory,
+    };
+
     switch (view) {
       case 'itinerary':
         if (currentItinerary) {
@@ -132,7 +156,7 @@ const App: React.FC = () => {
                  />;
         }
         // Fallback to form if no itinerary is active
-        return <ItineraryForm onGenerate={handleGenerateItinerary} />;
+        return <ItineraryForm {...formProps} />;
       case 'saved':
         return <SavedItineraries 
                   itineraries={savedItineraries}
@@ -142,7 +166,7 @@ const App: React.FC = () => {
                />;
       case 'form':
       default:
-        return <ItineraryForm onGenerate={handleGenerateItinerary} />;
+        return <ItineraryForm {...formProps} />;
     }
   };
 
