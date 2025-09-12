@@ -53,7 +53,10 @@ const ActivityCard: React.FC<{ activity: Activity, isLast: boolean }> = ({ activ
                 {/* Text content, must be relative to stack on top */}
                 <div className="relative p-6">
                     <p className="text-sm font-semibold text-[#13A89E] mb-1">{activity.time}</p>
-                    <h4 className="font-bold text-xl text-[#0B2545] mb-2 transition-colors duration-300 group-hover:text-white">{activity.title}</h4>
+                    <h4 className="flex items-center gap-3 font-bold text-xl text-[#0B2545] mb-2 transition-colors duration-300 group-hover:text-white">
+                        <span className="w-6 h-6 flex-shrink-0 text-[#13A89E]">{getIcon(activity.type)}</span>
+                        <span>{activity.title}</span>
+                    </h4>
                     <p className="text-[#4A4A4A] mb-3 transition-colors duration-300 group-hover:text-gray-200">{activity.description}</p>
                     {activity.location && (
                         <a
