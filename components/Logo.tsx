@@ -7,39 +7,27 @@ const Logo: React.FC = () => (
     viewBox="0 0 24 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
   >
-    {/* Compass / AI Spark Element */}
-    <g transform="translate(14.5, 4.5) rotate(15)">
-      <path
-        d="M3 0L3.75 2.25L6 3L3.75 3.75L3 6L2.25 3.75L0 3L2.25 2.25L3 0Z"
-        fill="#13A89E"
-      />
-    </g>
+    {/*
+      This logo is a vector recreation based on the image provided by the user.
+      It features a top-down view of an airplane over an open book.
+      Colors are sampled from the source image to match the user's request.
+    */}
 
-    {/* Paper Airplane Body */}
+    {/* Book Icon - Outline */}
     <path
-      d="M3.5 20.5L20 4L13 21L11 14L3.5 20.5Z"
-      stroke="#0B2545"
-      fill="#0B2545"
+      d="M3 18.5C7 16, 17 16, 21 18.5V13.5C17.5 11, 6.5 11, 3 13.5V18.5Z"
+      stroke="#264983"
       strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M20 4L11 14L13 21"
-      stroke="#13A89E"
-      fill="#13A89E"
-      strokeWidth="1.5"
-      strokeLinecap="round"
       strokeLinejoin="round"
     />
 
-    {/* Itinerary Book on Wing */}
-    <g transform="translate(6.5, 12.5) rotate(-40)">
-      <rect x="0" y="0" width="4" height="3" rx="0.5" fill="white" fillOpacity="0.85" />
-      <path d="M0 1.5H4" stroke="#0B2545" strokeWidth="0.5" strokeOpacity="0.6" />
-      <path d="M2 0V3" stroke="#0B2545" strokeWidth="0.5" strokeOpacity="0.6" />
-    </g>
+    {/* Airplane Icon - Solid fill */}
+    <path
+      d="M12 4L10.5 8.5L3 10.5L5.5 11.5L10.5 11V16.5L7 18.5L8 19.5L12 17.5L16 19.5L17 18.5L13.5 16.5V11L18.5 11.5L21 10.5L13.5 8.5L12 4Z"
+      fill="#4EBCF7"
+    />
   </svg>
 );
 
