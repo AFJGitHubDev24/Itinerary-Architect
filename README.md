@@ -52,3 +52,6 @@ This is **Itinerary Architect**, a good tool for preparing itineraries for tour 
    After the selection, the itinerary document has been downloaded.
 
 Now, get ready for your great and enjoyable itinerary-based trip to all over the world!🌍
+
+# LICENSE
+This application has a ![MIT LICENSE]. Please ask the repository owner regarding the implementation details.
