@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Itinerary } from '../types';
 import { TrashIcon } from './Icons';
+import ConfirmationDialog from './ConfirmationDialog';
 
 interface SavedItinerariesProps {
   itineraries: Itinerary[];
@@ -10,15 +11,28 @@ interface SavedItinerariesProps {
 }
 
 const SavedItineraries: React.FC<SavedItinerariesProps> = ({ itineraries, onView, onDelete, onNewTrip }) => {
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [itineraryToDelete, setItineraryToDelete] = useState<Itinerary | null>(null);
+  const [animatingOutId, setAnimatingOutId] = useState<string | null>(null);
 
-  const handleDeleteClick = (itineraryId: string) => {
-    setDeletingId(itineraryId);
-    // Wait for the animation to finish before calling the delete function
+  const handleDeleteRequest = (itinerary: Itinerary) => {
+    setItineraryToDelete(itinerary);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!itineraryToDelete) return;
+
+    setAnimatingOutId(itineraryToDelete.id!);
+    const idToDelete = itineraryToDelete.id!;
+    setItineraryToDelete(null); 
+
     setTimeout(() => {
-      onDelete(itineraryId);
-      setDeletingId(null); 
-    }, 300); // Duration should match the animation duration
+      onDelete(idToDelete);
+      setAnimatingOutId(null); 
+    }, 300);
+  };
+
+  const handleCancelDelete = () => {
+    setItineraryToDelete(null);
   };
 
   return (
@@ -52,7 +66,7 @@ const SavedItineraries: React.FC<SavedItinerariesProps> = ({ itineraries, onView
           {itineraries.map((itinerary) => (
             <div 
               key={itinerary.id} 
-              className={`bg-white dark:bg-gray-800 rounded-lg shadow-md border border-[#EAECEE] dark:border-gray-700 p-5 flex flex-col justify-between transition-all duration-300 ${deletingId === itinerary.id ? 'animate-fade-out-scale' : 'hover:shadow-xl hover:-translate-y-1'}`}
+              className={`bg-white dark:bg-gray-800 rounded-lg shadow-md border border-[#EAECEE] dark:border-gray-700 p-5 flex flex-col justify-between transition-all duration-300 ${animatingOutId === itinerary.id ? 'animate-fade-out-scale' : 'hover:shadow-xl hover:-translate-y-1'}`}
             >
               <h3 className="text-xl font-bold text-[#0B2545] dark:text-gray-100 mb-4 line-clamp-3">{itinerary.tripTitle}</h3>
               <div className="flex items-center justify-between mt-4">
@@ -64,7 +78,7 @@ const SavedItineraries: React.FC<SavedItinerariesProps> = ({ itineraries, onView
                   View
                 </button>
                 <button
-                  onClick={() => handleDeleteClick(itinerary.id!)}
+                  onClick={() => handleDeleteRequest(itinerary)}
                   className="text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors duration-300 p-2 rounded-full"
                   aria-label={`Delete itinerary for ${itinerary.tripTitle}`}
                 >
@@ -84,6 +98,15 @@ const SavedItineraries: React.FC<SavedItinerariesProps> = ({ itineraries, onView
             </button>
         </div>
       )}
+
+      <ConfirmationDialog
+        isOpen={!!itineraryToDelete}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        title="Delete Trip"
+        message={`Are you sure you want to permanently delete "${itineraryToDelete?.tripTitle}"?\nThis action cannot be undone.`}
+        confirmText="Delete"
+      />
     </div>
   );
 };
