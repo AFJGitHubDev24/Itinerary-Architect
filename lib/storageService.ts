@@ -144,11 +144,17 @@ export const saveSearchPreferences = (preferences: UserPreferences): UserPrefere
  * Toggles the pinned state of a search preference.
  */
 export const togglePinSearchPreference = (preferenceId: string): UserPreferences[] => {
-  const history = getSearchHistory();
+  let history = getSearchHistory();
   const itemIndex = history.findIndex(item => item.id === preferenceId);
 
   if (itemIndex > -1) {
     history[itemIndex].pinned = !history[itemIndex].pinned;
+
+    // Re-sort to group pinned items together, preserving relative order.
+    const pinned = history.filter(i => i.pinned);
+    const unpinned = history.filter(i => !i.pinned);
+    history = [...pinned, ...unpinned];
+    
     localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(history));
   }
   

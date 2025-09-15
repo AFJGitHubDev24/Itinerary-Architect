@@ -213,7 +213,7 @@ const ItineraryForm: React.FC<ItineraryFormProps> = ({ onGenerate, searchHistory
                                                   </div>
                                                   <button 
                                                       onClick={(e) => handleTogglePin(e, historyItem.id!)}
-                                                      className={`p-1 rounded-full ml-2 flex-shrink-0 transition-all duration-200 ${historyItem.pinned ? 'text-yellow-400 hover:text-yellow-500' : 'text-gray-300 dark:text-gray-500 opacity-0 group-hover:opacity-100 hover:text-yellow-500'}`}
+                                                      className={`p-1 rounded-full ml-2 flex-shrink-0 transition-all duration-200 ${historyItem.pinned ? 'text-yellow-400 hover:text-yellow-500' : 'text-gray-400 dark:text-gray-500 opacity-40 group-hover:opacity-100 hover:text-yellow-500'}`}
                                                       aria-label={historyItem.pinned ? 'Unpin search' : 'Pin search'}
                                                   >
                                                       <div className="w-5 h-5"><StarIcon filled={!!historyItem.pinned} /></div>
