@@ -15,8 +15,11 @@ export async function generateItinerary(preferences: UserPreferences): Promise<{
     - Budget: ${preferences.budget}
     - Interests: ${preferences.interests.join(', ')}
     - Travel Style: ${preferences.travelStyle}
+    - Tone of Voice: ${preferences.tone}
 
     Please generate a complete itinerary. 
+    
+    The language and descriptions throughout the itinerary must adopt a **${preferences.tone}** tone of voice. For example, a 'Friendly' tone should be conversational and welcoming, while a 'Professional' tone should be more formal and direct.
     
     The pace and type of activities must reflect the user's specified **Travel Style**. For example, a 'Relaxed' style should have fewer activities per day with more downtime, while an 'Adventurous' style might include hiking or other outdoor activities.
     

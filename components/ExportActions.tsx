@@ -55,7 +55,7 @@ const ExportActions: React.FC<ExportActionsProps> = ({ itinerary, onSave, isSave
       onClick={onClick}
       disabled={disabled}
       aria-label={ariaLabel}
-      className={`flex items-center gap-2 bg-white text-[#0B2545] font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed border border-[#EAECEE] ${className}`}
+      className={`flex items-center gap-2 bg-white dark:bg-gray-800 text-[#0B2545] dark:text-gray-200 font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed border border-[#EAECEE] dark:border-gray-700 ${className}`}
     >
       {children}
     </button>
@@ -67,7 +67,7 @@ const ExportActions: React.FC<ExportActionsProps> = ({ itinerary, onSave, isSave
         onClick={onSave}
         disabled={isSaved}
         ariaLabel={isSaved ? "Itinerary is saved" : "Save this itinerary"}
-        className={isSaved ? 'bg-teal-50 !text-[#13A89E]' : ''}
+        className={isSaved ? 'bg-teal-50 dark:bg-teal-500/10 !text-[#13A89E]' : ''}
       >
         <div className="w-5 h-5"><BookmarkIcon filled={isSaved} /></div>
         {isSaved ? 'Saved' : 'Save Trip'}
@@ -77,7 +77,7 @@ const ExportActions: React.FC<ExportActionsProps> = ({ itinerary, onSave, isSave
           <ActionButton
             onClick={onToggleMap}
             ariaLabel={isMapVisible ? "Hide map" : "Show map"}
-            className={isMapVisible ? 'bg-teal-50 !text-[#13A89E]' : ''}
+            className={isMapVisible ? 'bg-teal-50 dark:bg-teal-500/10 !text-[#13A89E]' : ''}
           >
             <div className="w-5 h-5"><MapIcon /></div>
             {isMapVisible ? 'Hide Map' : 'View Map'}
@@ -94,11 +94,11 @@ const ExportActions: React.FC<ExportActionsProps> = ({ itinerary, onSave, isSave
           {isExporting ? 'Exporting...' : 'Export'}
         </ActionButton>
         {isDropdownOpen && (
-          <div className="absolute top-full mt-2 w-48 bg-white rounded-lg shadow-xl border border-[#EAECEE] z-20 animate-fade-in-up origin-top">
+          <div className="absolute top-full mt-2 w-48 bg-white dark:bg-gray-700 rounded-lg shadow-xl border border-[#EAECEE] dark:border-gray-600 z-20 animate-fade-in-up origin-top">
             <ul className="py-1">
-                <li className="flex items-center gap-3 px-4 py-2 text-sm text-[#4A4A4A] hover:bg-[#F5F5F7] cursor-pointer" onClick={() => handleExport('pdf')}><div className="w-5 h-5 text-[#13A89E]"><PdfIcon/></div>Save as PDF</li>
-                <li className="flex items-center gap-3 px-4 py-2 text-sm text-[#4A4A4A] hover:bg-[#F5F5F7] cursor-pointer" onClick={() => handleExport('pptx')}><div className="w-5 h-5 text-[#13A89E]"><PptIcon/></div>Save as PPTX</li>
-                <li className="flex items-center gap-3 px-4 py-2 text-sm text-[#4A4A4A] hover:bg-[#F5F5F7] cursor-pointer" onClick={() => handleExport('docx')}><div className="w-5 h-5 text-[#13A89E]"><DocIcon/></div>Save as DOCX</li>
+                <li className="flex items-center gap-3 px-4 py-2 text-sm text-[#4A4A4A] dark:text-gray-200 hover:bg-[#F5F5F7] dark:hover:bg-gray-600 cursor-pointer" onClick={() => handleExport('pdf')}><div className="w-5 h-5 text-[#13A89E]"><PdfIcon/></div>Save as PDF</li>
+                <li className="flex items-center gap-3 px-4 py-2 text-sm text-[#4A4A4A] dark:text-gray-200 hover:bg-[#F5F5F7] dark:hover:bg-gray-600 cursor-pointer" onClick={() => handleExport('pptx')}><div className="w-5 h-5 text-[#13A89E]"><PptIcon/></div>Save as PPTX</li>
+                <li className="flex items-center gap-3 px-4 py-2 text-sm text-[#4A4A4A] dark:text-gray-200 hover:bg-[#F5F5F7] dark:hover:bg-gray-600 cursor-pointer" onClick={() => handleExport('docx')}><div className="w-5 h-5 text-[#13A89E]"><DocIcon/></div>Save as DOCX</li>
             </ul>
           </div>
         )}

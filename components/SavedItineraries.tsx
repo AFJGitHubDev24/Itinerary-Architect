@@ -39,8 +39,8 @@ const SavedItineraries: React.FC<SavedItinerariesProps> = ({ itineraries, onView
         }
       `}</style>
       <div className="text-center mb-8">
-        <h2 className="text-4xl font-bold text-[#0B2545]">My Saved Trips</h2>
-        <p className="text-[#A9A9A9] mt-2">
+        <h2 className="text-4xl font-bold text-[#0B2545] dark:text-gray-100">My Saved Trips</h2>
+        <p className="text-[#A9A9A9] dark:text-gray-400 mt-2">
           {itineraries.length > 0
             ? "Select a trip to view or manage your saved adventures."
             : "You haven't saved any trips yet. Create one to get started!"}
@@ -52,9 +52,9 @@ const SavedItineraries: React.FC<SavedItinerariesProps> = ({ itineraries, onView
           {itineraries.map((itinerary) => (
             <div 
               key={itinerary.id} 
-              className={`bg-white rounded-lg shadow-md border border-[#EAECEE] p-5 flex flex-col justify-between transition-all duration-300 ${deletingId === itinerary.id ? 'animate-fade-out-scale' : 'hover:shadow-xl hover:-translate-y-1'}`}
+              className={`bg-white dark:bg-gray-800 rounded-lg shadow-md border border-[#EAECEE] dark:border-gray-700 p-5 flex flex-col justify-between transition-all duration-300 ${deletingId === itinerary.id ? 'animate-fade-out-scale' : 'hover:shadow-xl hover:-translate-y-1'}`}
             >
-              <h3 className="text-xl font-bold text-[#0B2545] mb-4 line-clamp-3">{itinerary.tripTitle}</h3>
+              <h3 className="text-xl font-bold text-[#0B2545] dark:text-gray-100 mb-4 line-clamp-3">{itinerary.tripTitle}</h3>
               <div className="flex items-center justify-between mt-4">
                 <button
                   onClick={() => onView(itinerary)}
@@ -65,7 +65,7 @@ const SavedItineraries: React.FC<SavedItinerariesProps> = ({ itineraries, onView
                 </button>
                 <button
                   onClick={() => handleDeleteClick(itinerary.id!)}
-                  className="text-gray-400 hover:text-red-500 transition-colors duration-300 p-2 rounded-full"
+                  className="text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors duration-300 p-2 rounded-full"
                   aria-label={`Delete itinerary for ${itinerary.tripTitle}`}
                 >
                   <div className="w-5 h-5"><TrashIcon /></div>
@@ -78,7 +78,7 @@ const SavedItineraries: React.FC<SavedItinerariesProps> = ({ itineraries, onView
         <div className="text-center mt-12">
             <button 
               onClick={onNewTrip}
-              className="bg-[#0B2545] text-white font-bold py-3 px-6 rounded-lg text-lg hover:bg-opacity-90 transition-all duration-300 transform hover:scale-105"
+              className="bg-[#0B2545] dark:bg-gray-700 text-white dark:text-gray-200 font-bold py-3 px-6 rounded-lg text-lg hover:bg-opacity-90 dark:hover:bg-gray-600 transition-all duration-300 transform hover:scale-105"
             >
                 Plan a New Trip
             </button>

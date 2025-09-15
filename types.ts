@@ -5,6 +5,7 @@ export interface UserPreferences {
   interests: string[];
   budget: string;
   travelStyle: string;
+  tone: string;
   pinned?: boolean;
 }
 

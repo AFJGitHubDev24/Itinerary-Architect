@@ -62,17 +62,26 @@ export const getSearchHistory = (): UserPreferences[] => {
     let history: UserPreferences[] = JSON.parse(savedData);
     let needsUpdate = false;
     
-    // Migration: ensure all items have an ID and a pinned status.
+    // Migration: ensure all items have an ID, a pinned status, and a tone.
     history = history.map(item => {
-      if (!item.id || typeof item.pinned === 'undefined') {
-        needsUpdate = true;
-        return {
-          ...item,
-          id: item.id || `pref-${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 5)}`,
-          pinned: item.pinned || false,
-        };
+      let updated = false;
+      const newItem = { ...item };
+
+      if (!newItem.id) {
+        updated = true;
+        newItem.id = `pref-${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 5)}`;
       }
-      return item;
+      if (typeof newItem.pinned === 'undefined') {
+        updated = true;
+        newItem.pinned = false;
+      }
+      if (typeof newItem.tone === 'undefined') {
+          updated = true;
+          newItem.tone = 'Friendly';
+      }
+
+      if(updated) needsUpdate = true;
+      return newItem;
     });
     
     // Save back the migrated data only if changes were made

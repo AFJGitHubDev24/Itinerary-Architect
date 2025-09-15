@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import ItineraryForm from './components/ItineraryForm';
 import ItineraryDisplay from './components/ItineraryDisplay';
 import SavedItineraries from './components/SavedItineraries';
@@ -7,14 +7,71 @@ import Logo from './components/Logo';
 import { Itinerary, UserPreferences, GroundingChunk, AppError } from './types';
 import { generateItinerary } from './services/geminiService';
 import { getSavedItineraries, saveItinerary, deleteItinerary, getSearchHistory, saveSearchPreferences, togglePinSearchPreference, clearSearchHistory } from './lib/storageService';
-import { AlertTriangleIcon } from './components/Icons';
+import { AlertTriangleIcon, SunIcon, MoonIcon, ComputerDesktopIcon } from './components/Icons';
 
 type View = 'form' | 'itinerary' | 'saved';
+type Theme = 'light' | 'dark' | 'system';
 
 interface AppErrorState {
   title: string;
   message: string;
 }
+
+const ThemeSwitcher: React.FC<{ theme: Theme; setTheme: (theme: Theme) => void }> = ({ theme, setTheme }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const themes: { name: Theme, icon: React.ReactNode }[] = [
+    { name: 'light', icon: <SunIcon /> },
+    { name: 'dark', icon: <MoonIcon /> },
+    { name: 'system', icon: <ComputerDesktopIcon /> },
+  ];
+
+  const currentTheme = themes.find(t => t.name === theme);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center justify-center w-10 h-10 bg-white dark:bg-gray-700/50 text-[#0B2545] dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600/50 transition-all duration-300 transform hover:scale-105 border border-[#EAECEE] dark:border-gray-600"
+        aria-label={`Current theme: ${theme}`}
+      >
+        <div className="w-5 h-5">{currentTheme?.icon}</div>
+      </button>
+      {isOpen && (
+        <div className="absolute top-full right-0 mt-2 w-36 bg-white dark:bg-gray-700 rounded-lg shadow-xl border border-[#EAECEE] dark:border-gray-600 z-30 animate-fade-in-up origin-top-right">
+          <ul className="py-1">
+            {themes.map(t => (
+              <li key={t.name}>
+                <button
+                  onClick={() => {
+                    setTheme(t.name);
+                    setIsOpen(false);
+                  }}
+                  className={`w-full flex items-center gap-3 px-4 py-2 text-sm text-left ${theme === t.name ? 'text-[#13A89E] font-semibold' : 'text-[#4A4A4A] dark:text-gray-200'} hover:bg-[#F5F5F7] dark:hover:bg-gray-600`}
+                >
+                  <div className="w-5 h-5">{t.icon}</div>
+                  <span className="capitalize">{t.name}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};
+
 
 const App: React.FC = () => {
   const [view, setView] = useState<View>('form');
@@ -24,12 +81,38 @@ const App: React.FC = () => {
   const [searchHistory, setSearchHistory] = useState<UserPreferences[]>([]);
   const [citations, setCitations] = useState<GroundingChunk[]>([]);
   const [error, setError] = useState<AppErrorState | null>(null);
+  const [theme, setTheme] = useState<Theme>(() => (localStorage.getItem('theme') as Theme || 'light'));
+  const [effectiveTheme, setEffectiveTheme] = useState<'light' | 'dark'>('light');
 
   useEffect(() => {
     // Load saved itineraries and search history from storage on initial app load
     setSavedItineraries(getSavedItineraries());
     setSearchHistory(getSearchHistory());
   }, []);
+  
+  useEffect(() => {
+    const root = window.document.documentElement;
+    const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    
+    root.classList.remove(isDark ? 'light' : 'dark');
+    root.classList.add(isDark ? 'dark' : 'light');
+    setEffectiveTheme(isDark ? 'dark' : 'light');
+    localStorage.setItem('theme', theme);
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = () => {
+        if (theme === 'system') {
+            const newIsDark = mediaQuery.matches;
+            root.classList.remove(newIsDark ? 'light' : 'dark');
+            root.classList.add(newIsDark ? 'dark' : 'light');
+            setEffectiveTheme(newIsDark ? 'dark' : 'light');
+        }
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [theme]);
+
 
   const handleGenerateItinerary = useCallback(async (preferences: UserPreferences) => {
     setIsLoading(true);
@@ -120,15 +203,15 @@ const App: React.FC = () => {
     if (error && !isLoading) {
       return (
         <div className="max-w-2xl mx-auto my-8 animate-fade-in">
-          <div className="text-center p-8 bg-red-50 border border-red-300 text-red-800 rounded-lg shadow-lg">
-            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-                <div className="h-6 w-6 text-red-600"><AlertTriangleIcon /></div>
+          <div className="text-center p-8 bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-500/30 text-red-800 dark:text-red-200 rounded-lg shadow-lg">
+            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-500/20 mb-4">
+                <div className="h-6 w-6 text-red-600 dark:text-red-400"><AlertTriangleIcon /></div>
             </div>
             <h2 className="text-2xl font-bold mb-2">{error.title}</h2>
-            <p className="mb-6 text-red-700">{error.message}</p>
+            <p className="mb-6 text-red-700 dark:text-red-300">{error.message}</p>
             <button
               onClick={handleReset}
-              className="bg-red-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-red-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-red-50 focus:ring-red-500"
+              className="bg-red-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-red-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-red-50 focus:ring-red-500 dark:focus:ring-offset-gray-900"
             >
               Try Again
             </button>
@@ -153,6 +236,7 @@ const App: React.FC = () => {
                     citations={citations} 
                     onSave={handleSaveCurrentItinerary}
                     isSaved={isSaved}
+                    theme={effectiveTheme}
                  />;
         }
         // Fallback to form if no itinerary is active
@@ -171,18 +255,19 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F5F7] text-[#4A4A4A]">
-      <header className="bg-white/80 backdrop-blur-md sticky top-0 z-20 shadow-sm">
+    <div className="min-h-screen bg-[#F5F5F7] dark:bg-gray-900 text-[#4A4A4A] dark:text-gray-300">
+      <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md sticky top-0 z-20 shadow-sm dark:shadow-none border-b border-gray-200/50 dark:border-gray-700/50">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <button className="flex items-center gap-3" onClick={handleReset} aria-label="Go to home screen">
             <Logo />
-            <h1 className="text-2xl font-bold text-[#0B2545]">Itinerary Architect</h1>
+            <h1 className="text-2xl font-bold text-[#0B2545] dark:text-gray-100">Itinerary Architect</h1>
           </button>
           <div className="flex items-center gap-3">
+             <ThemeSwitcher theme={theme} setTheme={setTheme} />
             {savedItineraries.length > 0 && view !== 'saved' && (
               <button
                 onClick={handleShowSaved}
-                className="bg-white text-[#0B2545] font-semibold py-2 px-4 rounded-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 border border-[#EAECEE]"
+                className="bg-white dark:bg-gray-700 text-[#0B2545] dark:text-gray-200 font-semibold py-2 px-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-all duration-300 transform hover:scale-105 border border-[#EAECEE] dark:border-gray-600"
               >
                 My Saved Trips
               </button>
@@ -190,7 +275,7 @@ const App: React.FC = () => {
             {(view !== 'form' || isLoading) && (
               <button
                 onClick={handleReset}
-                className="bg-[#0B2545] text-white font-semibold py-2 px-4 rounded-lg hover:bg-opacity-90 transition-all duration-300 transform hover:scale-105"
+                className="bg-[#0B2545] dark:bg-gray-700 text-white dark:text-gray-200 font-semibold py-2 px-4 rounded-lg hover:bg-opacity-90 dark:hover:bg-gray-600 transition-all duration-300 transform hover:scale-105"
               >
                 New Trip
               </button>
@@ -203,7 +288,7 @@ const App: React.FC = () => {
         {renderContent()}
       </main>
 
-      <footer className="text-center p-4 text-[#A9A9A9] text-sm">
+      <footer className="text-center p-4 text-[#A9A9A9] dark:text-gray-500 text-sm">
         <p>Powered by Google Gemini. All rights reserved &copy; 2025 Itinerary Architect.</p>
       </footer>
     </div>

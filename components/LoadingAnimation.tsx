@@ -56,11 +56,11 @@ const LoadingAnimation: React.FC = () => {
           }
         `}</style>
       </div>
-      <h2 className="text-2xl font-semibold text-[#0B2545] mt-8">
+      <h2 className="text-2xl font-semibold text-[#0B2545] dark:text-gray-100 mt-8">
         Crafting Your Perfect Itinerary
       </h2>
       <div className="h-6 mt-2">
-         <p key={messageIndex} className="text-[#A9A9A9] animate-fade-in-out">
+         <p key={messageIndex} className="text-[#A9A9A9] dark:text-gray-400 animate-fade-in-out">
             {messages[messageIndex]}
           </p>
       </div>
