@@ -126,3 +126,45 @@ export const ComputerDesktopIcon: React.FC = () => (
         <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
     </IconWrapper>
 );
+
+export const WeatherSunIcon: React.FC = () => (
+    <IconWrapper>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+    </IconWrapper>
+);
+
+export const WeatherCloudIcon: React.FC = () => (
+    <IconWrapper>
+        <path d="M17.5,21H7.6C5.1,21,3,19,3,16.5c0-2.4,1.8-4.4,4.2-4.5c0.6-2.5,2.9-4.4,5.6-4.4c3.1,0,5.7,2.5,5.7,5.6 c0,0.3,0,0.6-0.1,0.8C20.6,14.2,22,15.7,22,17.5C22,19.4,20,21,17.5,21z" strokeWidth="1.5" />
+    </IconWrapper>
+);
+
+export const WeatherRainIcon: React.FC = () => (
+    <IconWrapper>
+        <path d="M17.5,21H7.6C5.1,21,3,19,3,16.5c0-2.4,1.8-4.4,4.2-4.5c0.6-2.5,2.9-4.4,5.6-4.4c3.1,0,5.7,2.5,5.7,5.6 c0,0.3,0,0.6-0.1,0.8C20.6,14.2,22,15.7,22,17.5C22,19.4,20,21,17.5,21z" strokeWidth="1.5" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8 19l-1 2m5-2l-1 2m5-2l-1 2" />
+    </IconWrapper>
+);
+
+export const WeatherSnowIcon: React.FC = () => (
+    <IconWrapper>
+        <path d="M17.5,21H7.6C5.1,21,3,19,3,16.5c0-2.4,1.8-4.4,4.2-4.5c0.6-2.5,2.9-4.4,5.6-4.4c3.1,0,5.7,2.5,5.7,5.6 c0,0.3,0,0.6-0.1,0.8C20.6,14.2,22,15.7,22,17.5C22,19.4,20,21,17.5,21z" strokeWidth="1.5" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8 19l.5 2m-.5-2l-.5 2m.5-2l0-1.5m5 .5l.5 2m-.5-2l-.5 2m.5-2l0-1.5m5 .5l.5 2m-.5-2l-.5 2m.5-2l0-1.5" />
+    </IconWrapper>
+);
+
+export const WeatherSunCloudIcon: React.FC = () => (
+    <IconWrapper>
+        <path d="M12.5 13.3c-2.8 0-5.2 1.9-5.7 4.5H7.6C5.1 17.8 3 15.7 3 13.2c0-2.4 1.8-4.4 4.2-4.5C7.8 6.2 10.1 4.3 12.8 4.3c3.1 0 5.7 2.5 5.7 5.6c0 1.9-0.9 3.6-2.4 4.6" strokeWidth="1.5" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3V2m5.364 2.636l.707-.707M22 12h-1m-2.636 5.364l-.707-.707" strokeWidth="1.5" />
+        <path d="M17.5,21H12s" strokeWidth="1.5" />
+        <path d="M17.5,21H7.6C5.1,21,3,19,3,16.5c0-0.9,0.3-1.8,0.8-2.5" strokeWidth="1.5" />
+    </IconWrapper>
+);
+
+export const WeatherThunderIcon: React.FC = () => (
+    <IconWrapper>
+        <path d="M17.5,21H7.6C5.1,21,3,19,3,16.5c0-2.4,1.8-4.4,4.2-4.5c0.6-2.5,2.9-4.4,5.6-4.4c3.1,0,5.7,2.5,5.7,5.6 c0,0.3,0,0.6-0.1,0.8C20.6,14.2,22,15.7,22,17.5C22,19.4,20,21,17.5,21z" strokeWidth="1.5" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13 19l-2 3h4l-2 3" />
+    </IconWrapper>
+);

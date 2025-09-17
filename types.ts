@@ -19,16 +19,28 @@ export interface Activity {
   longitude?: number;
 }
 
+export interface WeatherInfo {
+  date: string;
+  maxTemp: number;
+  minTemp: number;
+  weatherCode: number;
+  description: string;
+  icon: string;
+}
+
 export interface DayPlan {
   day: number;
   title: string;
   activities: Activity[];
   headerImageUrl?: string;
+  weather?: WeatherInfo;
 }
 
 export interface Itinerary {
   id?: string; // Unique ID for saved itineraries
   tripTitle: string;
+  startDate?: string;
+  endDate?: string;
   days: DayPlan[];
 }
 

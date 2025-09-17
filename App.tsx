@@ -6,6 +6,7 @@ import LoadingAnimation from './components/LoadingAnimation';
 import Logo from './components/Logo';
 import { Itinerary, UserPreferences, GroundingChunk, AppError } from './types';
 import { generateItinerary } from './services/geminiService';
+import { getWeatherForecast } from './services/weatherService';
 import { getSavedItineraries, saveItinerary, deleteItinerary, getSearchHistory, saveSearchPreferences, togglePinSearchPreference, clearSearchHistory } from './lib/storageService';
 import { AlertTriangleIcon, SunIcon, MoonIcon, ComputerDesktopIcon } from './components/Icons';
 
@@ -127,7 +128,42 @@ const App: React.FC = () => {
     try {
       const result = await generateItinerary(preferences);
       if (result.itinerary) {
-        setCurrentItinerary(result.itinerary);
+        let itineraryWithWeather = { ...result.itinerary };
+
+        const firstActivityWithCoords = itineraryWithWeather.days
+            .flatMap(d => d.activities)
+            .find(a => a.latitude && a.longitude);
+        
+        // Validate dates before fetching weather to prevent API errors
+        const areDatesValid = itineraryWithWeather.startDate &&
+                              itineraryWithWeather.endDate &&
+                              new Date(itineraryWithWeather.startDate) <= new Date(itineraryWithWeather.endDate);
+
+        if (areDatesValid && firstActivityWithCoords) {
+            try {
+                const weatherData = await getWeatherForecast(
+                    firstActivityWithCoords.latitude!,
+                    firstActivityWithCoords.longitude!,
+                    itineraryWithWeather.startDate!,
+                    itineraryWithWeather.endDate!
+                );
+
+                if (weatherData) {
+                    itineraryWithWeather.days = itineraryWithWeather.days.map((day, index) => {
+                        if (weatherData[index]) {
+                            return { ...day, weather: weatherData[index] };
+                        }
+                        return day;
+                    });
+                }
+            } catch (weatherError) {
+                console.warn("Could not fetch weather data:", weatherError);
+            }
+        } else if (!areDatesValid) {
+            console.warn("Invalid or malformed dates received from AI. Skipping weather forecast.");
+        }
+        
+        setCurrentItinerary(itineraryWithWeather);
         setCitations(result.citations || []);
         setView('itinerary');
       } else {

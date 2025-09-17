@@ -62,6 +62,8 @@ export async function generateItinerary(preferences: UserPreferences): Promise<{
     The final output must be a single JSON object. Do not include any text, markdown formatting (like \`\`\`json), or any other characters before or after the JSON object. Just the raw JSON. The JSON schema should be:
     {
       "tripTitle": "string",
+      "startDate": "string (The first day of the trip in YYYY-MM-DD format, inferred from user's dates)",
+      "endDate": "string (The last day of the trip in YYYY-MM-DD format, inferred from user's dates)",
       "days": [
         {
           "day": "number",

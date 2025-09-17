@@ -3,6 +3,7 @@ import { Itinerary, Activity, GroundingChunk } from '../types';
 import { FoodIcon, SightseeingIcon, AccommodationIcon, TravelIcon, ActivityIcon, LinkIcon } from './Icons';
 import ExportActions from './ExportActions';
 import MapView from './MapView';
+import WeatherDisplay from './WeatherDisplay';
 
 interface ItineraryDisplayProps {
     itinerary: Itinerary;
@@ -124,10 +125,11 @@ const ItineraryDisplay: React.FC<ItineraryDisplayProps> = ({ itinerary, citation
                                     className="w-full h-full object-cover"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                                <div className="absolute bottom-0 left-0 p-6">
+                                <div className="absolute bottom-0 left-0 p-6 w-full flex justify-between items-end gap-4">
                                     <h3 className="text-4xl font-bold text-white tracking-tight" style={{textShadow: '0 2px 4px rgba(0,0,0,0.5)'}}>
                                         Day {day.day}: {day.title}
                                     </h3>
+                                    {day.weather && <WeatherDisplay weather={day.weather} />}
                                 </div>
                             </div>
                         )}
