@@ -6,6 +6,8 @@ const messages = [
   "Consulting local guides...",
   "Finding hidden gems...",
   "Checking opening times...",
+  "Capturing the perfect views...",
+  "Generating inspirational images...",
   "Packing your virtual bags...",
   "Finalizing your masterpiece..."
 ];

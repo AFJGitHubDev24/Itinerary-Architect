@@ -4,6 +4,35 @@ import { AppError } from '../types';
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
 
+/**
+ * Generates a single image based on a prompt.
+ * @param prompt The prompt for image generation.
+ * @returns A base64 data URL of the image, or undefined if failed.
+ */
+async function generateDayImage(prompt: string): Promise<string | undefined> {
+  try {
+    const response = await ai.models.generateImages({
+      model: 'imagen-4.0-generate-001',
+      prompt: prompt,
+      config: {
+        numberOfImages: 1,
+        outputMimeType: 'image/jpeg',
+        aspectRatio: '16:9',
+      },
+    });
+
+    if (response.generatedImages && response.generatedImages.length > 0) {
+      const base64ImageBytes = response.generatedImages[0].image.imageBytes;
+      return `data:image/jpeg;base64,${base64ImageBytes}`;
+    }
+    return undefined;
+  } catch (error) {
+    console.error("Image generation failed:", error);
+    // Fail gracefully for a single image, don't block the whole itinerary
+    return undefined;
+  }
+}
+
 export async function generateItinerary(preferences: UserPreferences): Promise<{ itinerary: Itinerary | null, citations: GroundingChunk[] }> {
   const prompt = `
     You are an expert travel planner called 'Itinerary Architect'. Your task is to create a detailed, day-by-day travel itinerary based on the user's preferences.
@@ -89,6 +118,23 @@ export async function generateItinerary(preferences: UserPreferences): Promise<{
     } catch(e) {
         console.error("Failed to parse JSON response:", jsonText);
         throw new AppError("The AI returned a response that was not in the expected format. We're working on making this more reliable. Please try generating the trip again.", "Invalid AI Response");
+    }
+
+    // After successfully generating the text itinerary, generate images for each day.
+    if (itinerary) {
+      const imagePromises = itinerary.days.map(day => {
+        const activityTitles = day.activities.map(a => a.title).slice(0, 3).join(', ');
+        const imagePrompt = `A beautiful, vibrant, photorealistic travel photograph of ${preferences.destination}, capturing the essence of a day focused on "${day.title}" with activities like ${activityTitles}. Cinematic lighting, high detail, 16:9 aspect ratio.`;
+        return generateDayImage(imagePrompt);
+      });
+
+      const imageUrls = await Promise.all(imagePromises);
+
+      itinerary.days.forEach((day, index) => {
+        if (imageUrls[index]) {
+          day.headerImageUrl = imageUrls[index];
+        }
+      });
     }
     
     const citations = response.candidates?.[0]?.groundingMetadata?.groundingChunks as GroundingChunk[] || [];

@@ -23,6 +23,7 @@ export interface DayPlan {
   day: number;
   title: string;
   activities: Activity[];
+  headerImageUrl?: string;
 }
 
 export interface Itinerary {

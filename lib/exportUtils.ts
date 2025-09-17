@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf';
 import PptxGenJS from 'pptxgenjs';
-import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from 'docx';
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, ImageRun } from 'docx';
 import saveAs from 'file-saver';
 import { Itinerary } from '../types';
 
@@ -13,6 +13,17 @@ const slugify = (text: string) => {
     .replace(/--+/g, '-') // Replace multiple - with single -
     .replace(/^-+/, '') // Trim - from start of text
     .replace(/-+$/, ''); // Trim - from end of text
+};
+
+const base64ToArrayBuffer = (base64: string) => {
+    const binary_string = window.atob(base64);
+    const len = binary_string.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+        bytes[i] = binary_string.charCodeAt(i);
+    }
+    // FIX: Return a Uint8Array instead of an ArrayBuffer to resolve a type ambiguity error with the 'docx' library's ImageRun constructor.
+    return bytes;
 };
 
 
@@ -48,11 +59,27 @@ export const exportAsPdf = (itinerary: Itinerary) => {
         doc.addPage();
         y = margin;
     }
+
+    // --- Day Image ---
+    if (day.headerImageUrl) {
+      try {
+        const base64Data = day.headerImageUrl.split(',')[1];
+        const aspectRatio = 16 / 9;
+        const imgWidth = maxLineWidth;
+        const imgHeight = imgWidth / aspectRatio;
+        checkPageBreak(imgHeight + 10);
+        doc.addImage(base64Data, 'JPEG', margin, y, imgWidth, imgHeight);
+        y += imgHeight + 10;
+      } catch (e) {
+        console.error("Failed to add image to PDF", e);
+      }
+    }
     
     // --- Day Header ---
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(18);
     doc.setTextColor('#0B2545');
+    checkPageBreak(12);
     doc.text(dayHeader, margin, y);
     y += 12;
 
@@ -94,40 +121,81 @@ export const exportAsPptx = (itinerary: Itinerary) => {
   const pptx = new PptxGenJS();
   
   // Title Slide
-  pptx.addSlide().addText(itinerary.tripTitle, { 
+  const titleSlide = pptx.addSlide();
+  titleSlide.addText(itinerary.tripTitle, { 
     x: 0.5, y: 2.5, w: '90%', h: 1, 
     align: 'center', fontSize: 36, bold: true, color: '0B2545' 
   });
+  if (itinerary.days.length > 0 && itinerary.days[0].headerImageUrl) {
+      // FIX: Replaced invalid 'opacity' property with 'transparency' and added required 'w' and 'h' to 'sizing'. Assuming 20% opacity means 80% transparency.
+      titleSlide.addImage({ data: itinerary.days[0].headerImageUrl, w:'100%', h:'100%', sizing: { type: 'cover', w: '100%', h: '100%' }, transparency: 80 });
+  }
 
   itinerary.days.forEach(day => {
     // Each day gets a new slide
     const daySlide = pptx.addSlide();
+
+    // Add image as a prominent header
+    if (day.headerImageUrl) {
+        // FIX: Added required 'w' and 'h' properties to the 'sizing' object for the 'cover' type.
+        daySlide.addImage({
+            data: day.headerImageUrl,
+            x: 0, y: 0, w: '100%', h: 2.5,
+            sizing: { type: 'cover', w: '100%', h: 2.5 }
+        });
+    }
+
     daySlide.addText(`Day ${day.day}: ${day.title}`, { 
         x: 0.5, y: 0.5, w: '90%', h: 0.75, 
-        fontSize: 28, bold: true, color: '0B2545' 
+        fontSize: 28, bold: true, color: day.headerImageUrl ? 'FFFFFF' : '0B2545',
+        shadow: { type: 'outer', color: '000000', blur: 3, offset: 2, opacity: 0.6 }
     });
 
-    let yPos = 1.5;
+    let yPos = 2.7; // Start text below the image
     day.activities.forEach(activity => {
-        if (yPos > 6.5) { // Simple pagination within a day slide
-            daySlide.addText(`Day ${day.day}: ${day.title} (cont.)`, { x: 0.5, y: 0.5, w: '90%', h: 0.75, fontSize: 28, bold: true, color: '0B2545' });
+        // Simple pagination: if content overflows, create a new slide
+        if (yPos > 6.5) {
+            const contSlide = pptx.addSlide();
+            contSlide.addText(`Day ${day.day}: ${day.title} (cont.)`, { x: 0.5, y: 0.5, w: '90%', h: 0.75, fontSize: 28, bold: true, color: '0B2545' });
             yPos = 1.5;
+            contSlide.addText([
+                { text: `${activity.time} - ${activity.title}`, options: { bold: true, fontSize: 16, color: '13A89E' } },
+                { text: ` (${activity.type})`, options: { fontSize: 12, color: 'A9A9A9' } },
+                { text: `\n${activity.description}`, options: { fontSize: 12, color: '4A4A4A', breakLine: true } },
+                ...(activity.location ? [{ text: `\nLocation: ${activity.location}`, options: { fontSize: 11, color: '4A4A4A', italic: true, breakLine: true } }] : [])
+            ], { x: 0.5, y: yPos, w: '90%', h: 1 });
+        } else {
+            daySlide.addText([
+                { text: `${activity.time} - ${activity.title}`, options: { bold: true, fontSize: 14, color: '13A89E' } },
+                { text: ` (${activity.type})`, options: { fontSize: 11, color: 'A9A9A9' } },
+                { text: `\n${activity.description}`, options: { fontSize: 12, color: '4A4A4A', breakLine: true } },
+                ...(activity.location ? [{ text: `\nLocation: ${activity.location}`, options: { fontSize: 11, color: '4A4A4A', italic: true, breakLine: true } }] : [])
+            ], { x: 0.5, y: yPos, w: '90%', h: 1 });
         }
-        daySlide.addText([
-            { text: `${activity.time} - ${activity.title}`, options: { bold: true, fontSize: 16, color: '13A89E' } },
-            { text: ` (${activity.type})`, options: { fontSize: 12, color: 'A9A9A9' } },
-            { text: `\n${activity.description}`, options: { fontSize: 12, color: '4A4A4A', breakLine: true } },
-            ...(activity.location ? [{ text: `\nLocation: ${activity.location}`, options: { fontSize: 11, color: '4A4A4A', italic: true, breakLine: true } }] : [])
-        ], { x: 0.5, y: yPos, w: '90%', h: 1 });
-        yPos += 1.2;
+        yPos += 1.0;
     });
   });
 
   pptx.writeFile({ fileName: `${slugify(itinerary.tripTitle)}.pptx` });
 };
 
-export const exportAsDocx = (itinerary: Itinerary) => {
+export const exportAsDocx = async (itinerary: Itinerary) => {
     const sections = itinerary.days.flatMap((day, index) => {
+        const dayContent: Paragraph[] = [];
+
+        if (day.headerImageUrl) {
+            try {
+                const base64Data = day.headerImageUrl.split(',')[1];
+                const imageBuffer = base64ToArrayBuffer(base64Data);
+                dayContent.push(new Paragraph({
+                    children: [new ImageRun({ data: imageBuffer, transformation: { width: 600, height: 337.5 } })],
+                    alignment: AlignmentType.CENTER
+                }));
+            } catch(e) {
+                console.error("Could not process image for DOCX export", e);
+            }
+        }
+
         const activityParagraphs = day.activities.flatMap(activity => [
             new Paragraph({
                 children: [
@@ -141,7 +209,6 @@ export const exportAsDocx = (itinerary: Itinerary) => {
                 spacing: { after: 100 }
             }),
             ...(activity.location ? [new Paragraph({
-                // Fix: Changed `italic` to `italics` to match the `docx` library's IRunOptions interface.
                 children: [new TextRun({ text: `Location: ${activity.location}`, italics: true, size: 22, color: '4A4A4A'})],
                 spacing: { after: 200 }
             })] : [new Paragraph({ spacing: { after: 200 }})])
@@ -154,6 +221,7 @@ export const exportAsDocx = (itinerary: Itinerary) => {
                 spacing: { before: 400, after: 200 },
                 pageBreakBefore: index > 0, // Add page break before every day except the first
             }),
+            ...dayContent,
             ...activityParagraphs
         ];
     });
@@ -171,7 +239,6 @@ export const exportAsDocx = (itinerary: Itinerary) => {
         }]
     });
 
-    Packer.toBlob(doc).then(blob => {
-        saveAs(blob, `${slugify(itinerary.tripTitle)}.docx`);
-    });
+    const blob = await Packer.toBlob(doc);
+    saveAs(blob, `${slugify(itinerary.tripTitle)}.docx`);
 };

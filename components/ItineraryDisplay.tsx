@@ -112,20 +112,43 @@ const ItineraryDisplay: React.FC<ItineraryDisplayProps> = ({ itinerary, citation
             </div>
         )}
 
-        {itinerary.days.map(day => (
-            <div key={day.day} className="mb-12">
-                <h3 className="text-3xl font-bold text-[#0B2545] dark:text-gray-100 mb-2 sticky top-[70px] bg-[#F5F5F7]/80 dark:bg-gray-900/80 backdrop-blur-sm py-3 z-10">Day {day.day}: {day.title}</h3>
-                <div className="relative">
-                   {day.activities.map((activity, index) => (
-                       <ActivityCard 
-                            key={index} 
-                            activity={activity}
-                            isLast={index === day.activities.length - 1}
-                       />
-                   ))}
+        <div className="space-y-12">
+            {itinerary.days.map((day, dayIndex) => (
+                <div key={day.day} className="animate-fade-in-up" style={{ animationDelay: `${dayIndex * 150}ms`}}>
+                    <div className="relative">
+                        {day.headerImageUrl && (
+                             <div className="mb-8 rounded-xl overflow-hidden shadow-lg aspect-video relative bg-gray-200 dark:bg-gray-800">
+                                <img
+                                    src={day.headerImageUrl}
+                                    alt={`A vibrant depiction of activities for ${day.title}`}
+                                    className="w-full h-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                                <div className="absolute bottom-0 left-0 p-6">
+                                    <h3 className="text-4xl font-bold text-white tracking-tight" style={{textShadow: '0 2px 4px rgba(0,0,0,0.5)'}}>
+                                        Day {day.day}: {day.title}
+                                    </h3>
+                                </div>
+                            </div>
+                        )}
+                        
+                        {!day.headerImageUrl && (
+                            <h3 className="text-3xl font-bold text-[#0B2545] dark:text-gray-100 mb-2 sticky top-[70px] bg-[#F5F5F7]/80 dark:bg-gray-900/80 backdrop-blur-sm py-3 z-10">Day {day.day}: {day.title}</h3>
+                        )}
+
+                        <div className="relative">
+                           {day.activities.map((activity, index) => (
+                               <ActivityCard 
+                                    key={index} 
+                                    activity={activity}
+                                    isLast={index === day.activities.length - 1}
+                               />
+                           ))}
+                        </div>
+                    </div>
                 </div>
-            </div>
-        ))}
+            ))}
+        </div>
 
         {citations && citations.length > 0 && (
             <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-[#EAECEE] dark:border-gray-700 mt-12">
